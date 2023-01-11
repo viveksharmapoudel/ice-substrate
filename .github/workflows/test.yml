@@ -10,6 +10,7 @@ on:
 env:
   BUILD_PROFILE: debug
   RUST_TOOLCHAIN: nightly-2022-10-25
+  SKIP_WASM_BUILD: true
 
 jobs:
   clean-up-actions:
@@ -74,7 +75,7 @@ jobs:
 
       - name: Build optimized binary
         shell: bash
-        run: SKIP_WASM_BUILD=true cargo build --release
+        run: cargo build --release
 
       - name: Binary executable
         shell: bash
