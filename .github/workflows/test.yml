@@ -73,10 +73,8 @@ jobs:
           restore-keys: ${{ runner.os }}-cargo-
 
       - name: Build optimized binary
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release
+        shell: bash
+        run: SKIP_WASM_BUILD=true cargo build --release
 
       - name: Binary executable
         shell: bash
