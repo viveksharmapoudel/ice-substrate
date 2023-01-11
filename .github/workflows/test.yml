@@ -27,6 +27,7 @@ jobs:
     env:
       SCCACHE_CACHE_SIZE: "50G"
       CARGO_INCREMENTAL: 0
+      SKIP_WASM_BUILD: true
     needs:
       - clean-up-actions
 
