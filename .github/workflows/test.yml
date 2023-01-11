@@ -83,6 +83,7 @@ jobs:
         #   command: build
         #   args: --release
 
+        # check
       - name: Binary executable
         shell: bash
         run: chmod +x ./target/release/ice-node
