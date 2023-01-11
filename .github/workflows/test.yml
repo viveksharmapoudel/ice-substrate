@@ -1,10 +1,11 @@
 name: Test
-
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+    paths-ignore:
+      - "**/README.md"
 
 env:
   BUILD_PROFILE: debug
@@ -15,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Cancel Previous Runs
+        # Only cancel non-master branch runs
         if: ${{ github.ref != 'refs/heads/master' }}
         uses: styfle/cancel-workflow-action@0.11.0
         with:
@@ -31,9 +33,6 @@ jobs:
     steps:
       - name: Fetch latest code
         uses: actions/checkout@v3
-
-      - name: Set up smart cache
-        uses: Swatinem/rust-cache@v2
 
       - name: Install nightly toolchain
         uses: actions-rs/toolchain@v1
@@ -60,9 +59,24 @@ jobs:
         with:
           version: "3.x"
 
+      - name: Set up cargo cache
+        uses: actions/cache@v3
+        continue-on-error: false
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
       - name: Build optimized binary
         uses: actions-rs/cargo@v1
-        run: SKIP_WASM_BUILD=true cargo build --release
+        with:
+          command: build
+          args: --release
 
       - name: Binary executable
         shell: bash
