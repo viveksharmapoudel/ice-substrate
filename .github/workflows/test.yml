@@ -10,6 +10,7 @@ on:
 env:
   BUILD_PROFILE: debug
   RUST_TOOLCHAIN: nightly-2022-10-25
+  SKIP_WASM_BUILD: true
 
 jobs:
   clean-up-actions:
@@ -22,6 +23,7 @@ jobs:
         with:
           access_token: ${{ github.token }}
 
+  # check
   e2e-tests:
     runs-on: ubuntu-latest
     env:
@@ -42,14 +44,6 @@ jobs:
           target: wasm32-unknown-unknown
           override: true
 
-      - name: Install Rust Toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          default: true
-          profile: minimal
-          target: wasm32-unknown-unknown
-          toolchain: stable
-
       - name: Install WASM target (for runtime building)
         shell: bash
         run: rustup target add wasm32-unknown-unknown --toolchain ${{ env.RUST_TOOLCHAIN }}
@@ -59,24 +53,27 @@ jobs:
         with:
           version: "3.x"
 
-      - name: Set up cargo cache
-        uses: actions/cache@v3
-        continue-on-error: false
+      # - name: Set up cargo cache
+      #   uses: actions/cache@v3
+      #   continue-on-error: false
+      #   with:
+      #     path: |
+      #       ~/.cargo/bin/
+      #       ~/.cargo/registry/index/
+      #       ~/.cargo/registry/cache/
+      #       ~/.cargo/git/db/
+      #       target/
+      #     key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      #     restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Set up smart cache
+        uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-cargo-
+          prefix-key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build optimized binary
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release
+        shell: bash
+        run: cargo build --release
 
       - name: Binary executable
         shell: bash
