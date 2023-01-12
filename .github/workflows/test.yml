@@ -44,14 +44,6 @@ jobs:
           target: wasm32-unknown-unknown
           override: true
 
-      - name: Install Rust Toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          default: true
-          profile: minimal
-          target: wasm32-unknown-unknown
-          toolchain: stable
-
       - name: Install WASM target (for runtime building)
         shell: bash
         run: rustup target add wasm32-unknown-unknown --toolchain ${{ env.RUST_TOOLCHAIN }}
@@ -76,6 +68,8 @@ jobs:
 
       - name: Set up smart cache
         uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build optimized binary
         shell: bash
